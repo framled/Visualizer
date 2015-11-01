@@ -39,4 +39,18 @@
       <Filter>Archivos de código fuente</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\Debug\patiotierra_1_sub2.pcd">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="..\Debug\patiotierra_2_sub2.rgp.pcd">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="..\Debug\patiotierra_3_sub2.rgp.pcd">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+    <None Include="..\Debug\patiotierra_4_sub2.rgp.pcd">
+      <Filter>Archivos de recursos</Filter>
+    </None>
+  </ItemGroup>
 </Project>

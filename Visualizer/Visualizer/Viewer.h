@@ -1,10 +1,22 @@
 #pragma once
+#include <pcl/visualization/pcl_visualizer.h>
+#include <pcl/point_types.h>
+#include <iostream>
 
-
-class Viewer
-{
-public:
-	Viewer();
-	~Viewer();
-};
-
+namespace pcl {
+	template<typename PointT>
+	class Viewer
+	{
+	public:
+		typedef pcl::PointCloud<PointT> PointCloud;
+		typedef typename PointCloud::ConstPtr ConstPtr;
+		Viewer();
+		void run();
+		void addCloud(const ConstPtr& cloud, bool isColored);
+		virtual ~Viewer();
+	private:
+		boost::shared_ptr<pcl::visualization::PCLVisualizer> viewer;
+		void keyboard_callback(const pcl::visualization::KeyboardEvent& event, void*);
+		void mouse_callback(const pcl::visualization::MouseEvent& event, void*);
+	};
+}
