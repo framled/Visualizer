@@ -58,19 +58,19 @@
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\Properties\PCL1.7.2.props" />
+    <Import Project="..\..\..\..\Dev\Props\PCL1.7.2.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\Properties\PCL1.7.2.props" />
+    <Import Project="..\..\..\..\Dev\Props\PCL1.7.2.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\Properties\PCL1.7.2.props" />
+    <Import Project="..\..\..\..\Dev\Props\PCL1.7.2.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
-    <Import Project="..\Properties\PCL1.7.2.props" />
+    <Import Project="..\..\..\..\Dev\Props\PCL1.7.2.props" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -164,12 +164,6 @@
     </ClCompile>
     <ClCompile Include="Viewer.cpp" />
     <ClCompile Include="Visualizer.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\Debug\patiotierra_1_sub2.pcd" />
-    <None Include="..\Debug\patiotierra_2_sub2.rgp.pcd" />
-    <None Include="..\Debug\patiotierra_3_sub2.rgp.pcd" />
-    <None Include="..\Debug\patiotierra_4_sub2.rgp.pcd" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
