@@ -22,7 +22,7 @@ void getFiles(string path, vector<string>& output);
 void getFiles(char** argv, vector<int>& indices, vector<string>& output);
 
 void readPCDFile(string path, pcl::PCLPointCloud2& cloud);
-void readPCDFile(string path, pcl::PCLPointCloud2& cloud);
+void readPLYFile(string path, pcl::PCLPointCloud2& cloud);
 
 
 int main(int argc, char** argv)
@@ -48,30 +48,35 @@ int main(int argc, char** argv)
 		getFiles(argv, indices, paths);
 	}
 	if (!flag_color) {
-		pcl::PCLPointCloud2 cloud_blob;
-		pcl::PointCloud<pcl::PointXYZ>::Ptr ptr_cloud(new pcl::PointCloud<pcl::PointXYZ>);
-			
+		vector<pcl::PCLPointCloud2> clouds_blob(paths.size());
+		boost::thread_group tgroup;
+		int i = 0;
 		for (vector<string>::iterator path = paths.begin(); path != paths.end(); ++path) {
 			size_t found_pcd = path->find(".pcd");
 			size_t found_ply = path->find(".ply");
+
 			if (found_pcd != string::npos) 
 			{
-				cloud_blob = readPCDFile(*path);
+				tgroup.create_thread(boost::bind(readPCDFile, *path, boost::ref(clouds_blob[i])));
 			}
 			else if(found_ply != string::npos)
 			{
-				
-				cloud_blob = readPLYFile(*path);
+				tgroup.create_thread(boost::bind(readPLYFile, *path, boost::ref(clouds_blob[i])));
 			}
 			else {
 				return 0;
 			}
-			
-			pcl::PointCloud<pcl::PointXYZ> c;
-			pcl::fromPCLPointCloud2(cloud_blob, c);
-			*ptr_cloud = *ptr_cloud + c;
-			
+			i++;
 		}
+		tgroup.join_all();
+
+		pcl::PointCloud<pcl::PointXYZ>::Ptr ptr_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+		for (vector<pcl::PCLPointCloud2>::iterator cloud = clouds_blob.begin(); cloud != clouds_blob.end(); ++cloud) {
+			pcl::PointCloud<pcl::PointXYZ> c;
+			pcl::fromPCLPointCloud2(*cloud, c);
+			*ptr_cloud = *ptr_cloud + c;
+		}
+		
 		if (pcl::console::find_argument(argc, argv, "--show") >= 0) 
 			if (ptr_cloud) show(ptr_cloud);
 		
@@ -79,42 +84,52 @@ int main(int argc, char** argv)
 		{
 			string path(argv[pcl::console::find_argument(argc, argv, "--save") + 1]);
 			cout << "writing file " << path << endl;
-			pcl::io::savePCDFile(path, *ptr_cloud);
+			pcl::io::savePCDFileASCII(path, *ptr_cloud);
 		}
 	}
 	else 
 	{
-		pcl::PCLPointCloud2 cloud_blob;
-		pcl::PointCloud<pcl::PointXYZRGB>::Ptr ptr_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
-		vector<boost::thread> threads (paths.size());
+		vector<pcl::PCLPointCloud2> clouds_blob(paths.size());
+		boost::thread_group tgroup;
+		int i = 0;
 		for (vector<string>::iterator path = paths.begin(); path != paths.end(); ++path) {
 			size_t found_pcd = path->find(".pcd");
 			size_t found_ply = path->find(".ply");
 			if (found_pcd != string::npos)
 			{
-				thread thread_1 = thread(task1);
-				cloud_blob = readPCDFile(*path);
+				tgroup.create_thread(boost::bind(readPCDFile, *path, clouds_blob[i]));
 			}
 			else if (found_ply != string::npos)
 			{
-				cloud_blob = readPLYFile(*path);
+				tgroup.create_thread(boost::bind(readPLYFile, *path, clouds_blob[i]));
 			}
 			else {
 				return 0;
 			}
-			
-			pcl::PointCloud<pcl::PointXYZRGB> c;
+			/*pcl::PointCloud<pcl::PointXYZ> c;
 			pcl::fromPCLPointCloud2(cloud_blob, c);
+			*ptr_cloud = *ptr_cloud + c;*/
+			i++;
+		}
+		tgroup.join_all();
+		pcl::PointCloud<pcl::PointXYZRGB>::Ptr ptr_cloud(new pcl::PointCloud<pcl::PointXYZRGB>);
+		for (vector<pcl::PCLPointCloud2>::iterator cloud = clouds_blob.begin(); 
+			cloud != clouds_blob.end(); 
+			++cloud) 
+		{
+			pcl::PointCloud<pcl::PointXYZRGB> c;
+			pcl::fromPCLPointCloud2(*cloud, c);
 			*ptr_cloud = *ptr_cloud + c;
 		}
-		if (pcl::console::find_argument(argc, argv, "--show") >= 0) 
-			if (ptr_cloud) show(ptr_cloud, "");
+		
+		if (pcl::console::find_argument(argc, argv, "--show") >= 0)
+			if (ptr_cloud) show(ptr_cloud,"");
 
 		if (pcl::console::find_argument(argc, argv, "--save") >= 0)
 		{
 			string path(argv[pcl::console::find_argument(argc, argv, "--save") + 1]);
 			cout << "writing file " << path << endl;
-			pcl::io::savePCDFile(path, *ptr_cloud);
+			pcl::io::savePCDFileASCII(path, *ptr_cloud);
 		}
 	}
 	system("PAUSE");
@@ -173,8 +188,7 @@ void readPCDFile(string path, pcl::PCLPointCloud2& cloud)
 {
 	cout << "==============================================================" << endl
 		<< "prepare for read " << path << endl;
-	pcl::PCLPointCloud2 cloud;
-	if (pcl::io::loadPCDFile(path, cloud) == -1) 
+	if (pcl::io::loadPCDFile(path, cloud) == -1)
 	{
 		string error("Couldn't read file " + path + " \n");
 		PCL_ERROR(error.c_str());
@@ -188,16 +202,17 @@ void readPCDFile(string path, pcl::PCLPointCloud2& cloud)
 			<< "Height: " << cloud.height << endl
 			<< "==============================================================" << endl;
 	}
-	
 }
-void readPLYFile(string path, pcl::PCLPointCloud2& cloud) {
+void readPLYFile(string path, pcl::PCLPointCloud2& cloud) 
+{
 	
 	if (pcl::io::loadPLYFile(path, cloud) == -1) 
 	{
 		string error("Couldn't read file " + path + " \n");
 		PCL_ERROR(error.c_str());
 	}
-	else {
+	else 
+	{
 		cout << "success read file " << path << endl
 			<< "==============================================================" << endl
 			<< "Details of the point cloud " << endl
