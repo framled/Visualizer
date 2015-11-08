@@ -1,38 +1,60 @@
+#include "stdafx.h"
 #include "Utilities.h"
 
 Utilities::Utilities()
 {
 }
 
-
 Utilities::~Utilities()
 {
 }
 
 
-void printUsage(char* name)
+int Utilities::UniqueNumber()
 {
-	std::cout << "Name of program: " << name << std::endl
-		<< "--file [path]				PCD and PLY file to be open" << std::endl
-		<< "--folder [path]				All PCD and PLY Files at the folder" << std::endl
-		<< "--save [path]				Save a single PCD file" << std::endl
-		<< "--show [path]				Show PCD" << std::endl
-		<< "-h							Print this usage" << std::endl;
+	static int current = 0;
+	return ++current;
 }
-void show(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud)
+
+std::vector<int> Utilities::getIndices(const unsigned int length)
+{
+	std::vector<int> indices(length);
+	std::generate_n(indices.begin(), length, UniqueNumber);
+	return indices;
+}
+
+void Utilities::convert2XYZ(std::vector<pcl::PCLPointCloud2>& input, pcl::PointCloud<pcl::PointXYZ>::Ptr& output)
+{
+	for (std::vector<pcl::PCLPointCloud2>::iterator cloud = input.begin(); cloud != input.end(); ++cloud) {
+		pcl::PointCloud<pcl::PointXYZ> c;
+		pcl::fromPCLPointCloud2(*cloud, c);
+		*output = *output + c;
+	}
+}
+void Utilities::convert2XYZRGB(std::vector<pcl::PCLPointCloud2>& input, pcl::PointCloud<pcl::PointXYZRGB>::Ptr& output)
+{
+	for (std::vector<pcl::PCLPointCloud2>::iterator cloud = input.begin(); cloud != input.end(); ++cloud) {
+		pcl::PointCloud<pcl::PointXYZRGB> c;
+		pcl::fromPCLPointCloud2(*cloud, c);
+		*output = *output + c;
+	}
+}
+
+void Utilities::show(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud)
 {
 	pcl::Viewer<pcl::PointXYZ> viewer;
 	viewer.addCloud(cloud, false);
 	viewer.run();
 }
-void showColor(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& cloud, bool with_color = true)
+
+void Utilities::show(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& cloud, bool with_color = true)
 {
 	pcl::Viewer<pcl::PointXYZRGB> viewer;
 	viewer.addCloud(cloud, with_color);
 	viewer.run();
 }
 
-void getFiles(std::string path, std::vector<std::string>& output)
+void Utilities::getFiles(std::string path, std::vector<std::string>& output)
 {
 	boost::filesystem::path p(path);
 	for (auto i = boost::filesystem::directory_iterator(p); i != boost::filesystem::directory_iterator(); i++)
@@ -49,7 +71,8 @@ void getFiles(std::string path, std::vector<std::string>& output)
 		}
 	}
 }
-void getFiles(char** argv, std::vector<int>& indices, std::vector<std::string>& output)
+
+void Utilities::getFiles(char** argv, std::vector<int>& indices, std::vector<std::string>& output)
 {
 
 	for (std::vector<int>::iterator i = indices.begin(); i != indices.end(); i++)
@@ -58,7 +81,29 @@ void getFiles(char** argv, std::vector<int>& indices, std::vector<std::string>& 
 		output.push_back(argv[*i]);
 	}
 }
-void readPCDFile(std::string path, pcl::PCLPointCloud2& cloud)
+
+void Utilities::read(std::vector<std::string> paths, std::vector<pcl::PCLPointCloud2>& clouds_blob)
+{
+	boost::thread_group tgroup;
+	int i = 0;
+	for (std::vector<std::string>::iterator path = paths.begin(); path != paths.end(); ++path) {
+		size_t found_pcd = path->find(".pcd");
+		size_t found_ply = path->find(".ply");
+
+		if (found_pcd != std::string::npos)
+		{
+			tgroup.create_thread(boost::bind(Utilities::readPCDFile, *path, boost::ref(clouds_blob[i])));
+		}
+		else if (found_ply != std::string::npos)
+		{
+			tgroup.create_thread(boost::bind(Utilities::readPLYFile, *path, boost::ref(clouds_blob[i])));
+		}
+		i++;
+	}
+	tgroup.join_all();
+}
+
+void Utilities::readPCDFile(std::string path, pcl::PCLPointCloud2& cloud)
 {
 	std::cout << "==============================================================" << std::endl
 		<< "prepare for read " << path << std::endl;
@@ -77,7 +122,8 @@ void readPCDFile(std::string path, pcl::PCLPointCloud2& cloud)
 			<< "==============================================================" << std::endl;
 	}
 }
-void readPLYFile(std::string path, pcl::PCLPointCloud2& cloud)
+
+void Utilities::readPLYFile(std::string path, pcl::PCLPointCloud2& cloud)
 {
 
 	if (pcl::io::loadPLYFile(path, cloud) == -1)
@@ -95,3 +141,46 @@ void readPLYFile(std::string path, pcl::PCLPointCloud2& cloud)
 			<< "==============================================================" << std::endl;
 	}
 }
+
+
+void Utilities::writePCDFile(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud, std::string path, int how_many_files = 1)
+{
+	std::cout << "writing file " << path << std::endl;
+	for (int i = 0; i < how_many_files; i++) {
+		std::string extension(getExtension(path));
+		std::string str(path);
+		str.replace(str.find(extension), sizeof(extension) - 1, "_" + std::to_string(i) + extension);
+		std::vector<int> indices(getIndices((cloud->width * cloud->height) / 4));
+		pcl::io::savePCDFile(str, *cloud, indices);
+	}
+}
+void Utilities::writePCDFile(const pcl::PointCloud<pcl::PointXYZRGB>::ConstPtr& cloud, std::string path, int how_many_files = 1)
+{
+	std::cout << "writing file " << path << std::endl;
+	for (int i = 0; i < how_many_files; i++) {
+		std::string extension(getExtension(path));
+		std::string str(path);
+		str.replace(str.find(extension), sizeof(extension) - 1, "_" + std::to_string(i) + extension);
+		std::vector<int> indices(getIndices((cloud->width * cloud->height) / 4));
+		pcl::io::savePCDFile(str, *cloud, indices);
+	}
+}
+
+
+std::string Utilities::getExtension(std::string file)
+{
+	std::string extension("");
+	for (int i = file.length() - 1; i >= 0; i--) {
+		if (file[i] != '.') 
+		{
+			extension += file[i];
+		}
+		else 
+		{
+			break;
+		}
+	}
+	std::reverse(extension.begin(), extension.end());
+	return "." + extension;
+}
+
