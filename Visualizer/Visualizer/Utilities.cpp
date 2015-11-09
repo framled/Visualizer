@@ -28,7 +28,7 @@ void Utilities::convert2XYZ(std::vector<pcl::PCLPointCloud2>& input, pcl::PointC
 	for (std::vector<pcl::PCLPointCloud2>::iterator cloud = input.begin(); cloud != input.end(); ++cloud) {
 		pcl::PointCloud<pcl::PointXYZ> c;
 		pcl::fromPCLPointCloud2(*cloud, c);
-		*output = *output + c;
+		*output += c;
 	}
 }
 void Utilities::convert2XYZRGB(std::vector<pcl::PCLPointCloud2>& input, pcl::PointCloud<pcl::PointXYZRGB>::Ptr& output)
@@ -36,7 +36,7 @@ void Utilities::convert2XYZRGB(std::vector<pcl::PCLPointCloud2>& input, pcl::Poi
 	for (std::vector<pcl::PCLPointCloud2>::iterator cloud = input.begin(); cloud != input.end(); ++cloud) {
 		pcl::PointCloud<pcl::PointXYZRGB> c;
 		pcl::fromPCLPointCloud2(*cloud, c);
-		*output = *output + c;
+		*output += c;
 	}
 }
 

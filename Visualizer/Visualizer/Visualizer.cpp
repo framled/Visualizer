@@ -28,11 +28,11 @@ Functions
 void printUsage(char* name)
 {
 	cout << "Name of program: " << name << endl
-		<< "--file [path]				PCD and PLY file to be open" << endl
-		<< "--folder [path]				All PCD and PLY Files at the folder" << endl
-		<< "--save [path]				Save a single PCD file" << endl
-		<< "--show [path]				Show PCD" << endl
-		<< "-h							Print this usage" << endl;
+		<< "--file [path]					PCD and PLY file to be open" << endl
+		<< "--folder [path]					All PCD and PLY Files at the folder" << endl
+		<< "--save [path] [how many files]	Save a single PCD file" << endl
+		<< "--show [path]					Show PCD" << endl
+		<< "-h								Print this usage" << endl;
 }
 int main(int argc, char** argv)
 {
@@ -59,6 +59,7 @@ int main(int argc, char** argv)
 	std::vector<pcl::PCLPointCloud2> clouds_blob(paths.size());
 	pcl::PointCloud<pcl::PointXYZ>::Ptr ptr_cloud(new pcl::PointCloud<pcl::PointXYZ>);
 	pcl::PointCloud<pcl::PointXYZRGB>::Ptr ptr_cloud_color(new pcl::PointCloud<pcl::PointXYZRGB>);
+
 	Utilities::read(paths, clouds_blob);
 
 	if (flag_color) {

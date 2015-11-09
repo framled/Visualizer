@@ -3,7 +3,7 @@
   <ImportGroup Label="PropertySheets" />
   <!-- User Macros -->
   <PropertyGroup Label="UserMacros">
-    <PCL_ROOT Condition="'$(Platform)'=='Win32'">C:\Program Files (x86)\PCL 1.7.2</PCL_ROOT>
+    <PCL_ROOT Condition="'$(Platform)'=='Win32'">E:\Archivos de programa (x86)\PCL 1.7.2</PCL_ROOT>
     <PCL_ROOT Condition="'$(Platform)'=='x64'">$(ProgramW6432)\PCL 1.7.2</PCL_ROOT>
   </PropertyGroup>
   <!-- Debug|Win32 -->
