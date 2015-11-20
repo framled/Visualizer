@@ -1,4 +1,6 @@
-#pragma once
+#ifndef SOURCE_DIRECTORY__UTILITIES_H_
+#define SOURCE_DIRECTORY__UTILITIES_H_
+
 #include <iostream>
 #include <pcl/point_types.h>
 #include <pcl/io/pcd_io.h>
@@ -25,8 +27,11 @@ public:
 	static std::string getExtension(std::string file);
 	static int UniqueNumber();
 	static std::vector<int> getIndices(const unsigned int length);
-	static void Utilities::convert2XYZ(std::vector<pcl::PCLPointCloud2>& input, pcl::PointCloud<pcl::PointXYZ>::Ptr& output);
-	static void Utilities::convert2XYZRGB(std::vector<pcl::PCLPointCloud2>& input, pcl::PointCloud<pcl::PointXYZRGB>::Ptr& output);
+	static void convert2XYZ(std::vector<pcl::PCLPointCloud2>& input, pcl::PointCloud<pcl::PointXYZ>::Ptr& output);
+	static void convert2XYZRGB(std::vector<pcl::PCLPointCloud2>& input, pcl::PointCloud<pcl::PointXYZRGB>::Ptr& output);
+	static std::string mkdir(const std::string& dir);
+	static void print(const pcl::PointCloud<pcl::PointXYZ>::ConstPtr& cloud);
 	~Utilities();
 };
 
+#endif /* SOURCE_DIRECTORY__UTILITIES_H_ */

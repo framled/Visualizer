@@ -1,0 +1,7 @@
+--folder ../../../dev/resources/patio_tierra/ --save ../../../dev/resources/patio_tierra/result/patio_tierra.pcd 4 --color
+
+--folder ../../../dev/resources/patio_tierra/result --show
+
+--folder ../../../dev/resources/patio_tierra/result/patio_tierra_0.pcd --show
+
+--file ../../../dev/pcl/test/bunny.pcd

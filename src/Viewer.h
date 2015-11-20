@@ -1,4 +1,5 @@
-#pragma once
+#ifndef SOURCE_DIRECTORY__VIEWER_H_
+#define SOURCE_DIRECTORY__VIEWER_H_
 #include <pcl/visualization/pcl_visualizer.h>
 #include <pcl/point_types.h>
 #include <iostream>
@@ -20,3 +21,5 @@ namespace pcl {
 		void mouse_callback(const pcl::visualization::MouseEvent& event, void*);
 	};
 }
+
+#endif /*SOURCE_DIRECTORY__UTILITIES_H_*/
