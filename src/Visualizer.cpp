@@ -1,6 +1,7 @@
 // Visualizer.cpp: define el punto de entrada de la aplicaci�n de consola.
-#include "Viewer.h"
-#include "Utilities.h"
+#include "Utils/Viewer.h"
+#include "Utils/Utilities.h"
+#include "Utils/SimpleOpenNIViewer.h"
 #include <iostream>
 #include <pcl/console/parse.h>
 #include <pcl/point_types.h>
@@ -30,6 +31,8 @@ void printUsage(char* name)
 		<< "--folder [path]					All PCD and PLY Files at the folder" << endl
 		<< "--save [path] [how many files]	Save a single PCD file" << endl
 		<< "--show [path]					Show PCD" << endl
+		<< "--print 						Print the Point Cloud" << endl
+		<< "--kinect 						Show a Kinect pointcloud" << endl
 		<< "-h								Print this usage" << endl;
 }
 int main(int argc, char** argv)
@@ -42,6 +45,11 @@ int main(int argc, char** argv)
 	flag_color = false;
 	if (pcl::console::find_argument(argc,argv,"--color") >= 0) {
 		flag_color = true;
+	}
+
+	if(pcl::console::find_argument(argc,argv,"--kinect")>=0){
+		SimpleOpenNIViewer v;
+		v.run();
 	}
 	vector<string> paths;
 	//read a file contain on a folder
@@ -75,6 +83,8 @@ int main(int argc, char** argv)
 	}
 	clouds_blob.clear();
 	
+
+
 	Eigen::Vector4f centroid;
 	if (!flag_color) {
 
@@ -101,7 +111,13 @@ int main(int argc, char** argv)
 			int how_many_files = atoi(argv[pcl::console::find_argument(argc, argv, "--save") + 2]);
 			Utilities::writePCDFile(ptr_cloud, path, how_many_files);
 		}
+		if(pcl::console::find_argument(argc,argv,"--print") >= 0){
+			for (size_t i = 0; i < ptr_cloud->points.size (); ++i)
+				    std::cout << i << "	" << ptr_cloud->points[i].x
+				              << " 	"    << ptr_cloud->points[i].y
+				              << "	"    << ptr_cloud->points[i].z << std::endl;
 
+		}
 	}
 	else 
 	{
@@ -131,5 +147,7 @@ int main(int argc, char** argv)
 			Utilities::writePCDFile(ptr_cloud_color, path, how_many_files);
 		}
 	}
+
+
     return 0;
 }

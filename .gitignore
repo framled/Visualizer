@@ -194,3 +194,6 @@ FakesAssemblies/
 
 # Visual Studio 6 workspace options file
 *.opt
+
+#ignore the utils file and everything in it
+src/Utils/
