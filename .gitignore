@@ -196,4 +196,3 @@ FakesAssemblies/
 *.opt
 
 #ignore the utils file and everything in it
-src/Utils/
